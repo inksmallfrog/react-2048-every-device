@@ -10,7 +10,7 @@ function getRandomFromRange(min, max){
 }
 
 //Add this polyfill for webview
-Number.isInteger = Number.isInteger || function(value) {
+function isInteger(value) {
   return typeof value === 'number' &&
     isFinite(value) &&
     Math.floor(value) === value;
@@ -81,7 +81,7 @@ class AppComponent extends React.Component {
      * 生成新游戏
      */
     newGame(){
-        let max_hist = Number.isInteger(+localStorage.max_score) ? +localStorage.max_score : 0;
+        let max_hist = isInteger(+localStorage.max_score) ? +localStorage.max_score : 0;
         localStorage.max_score = Math.max(max_hist, this.state.score.max);
         let number_grids = [],
             step = -2,
