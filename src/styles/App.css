@@ -20,7 +20,7 @@ html{
     @media (--small-viewport){
         width: 100%;
         margin: 0;
-        touch-action: none;
+        touch-action: none; /*阻止移动端Chrome的pull down refresh*/
     }
 
     & .header-sec{
@@ -60,7 +60,7 @@ html{
             background-color: rgba(168, 168, 168, 0.7);
             text-align: center;
             &.show{
-                display: unset;
+                display: block; /*为了兼容android4.4.4以下的webkit浏览器，不能用unset*/
             }
             & .text{
                 padding: 20% 0;
