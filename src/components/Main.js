@@ -12,14 +12,14 @@ function getRandomFromRange(min, max){
 class AppComponent extends React.Component {
     constructor(props){
         super(props);
-        let stored_high_score = +localStorage.max_score;
+        let stored_high_score = localStorage.max_score;
 
         this.last_keyevent_time;                        //记录上次键盘事件发生时间
         this.touch = {x: -1, y: -1, active: false};     //记录手指触控起点信息
         this.state = {
             score:{
                 current: 0,
-                max: stored_high_score ? stored_high_score : 0
+                max: isNaN(stored_high_score) ? (+stored_high_score) : 0
             },
             step: -2,
             game_time: 0,
@@ -345,8 +345,8 @@ class AppComponent extends React.Component {
             this.touch.y = e.targetTouches[0].pageY;
             this.touch.active = true;
         }
-        e.stopPropagation();
-        e.preventDefault();
+        //e.stopPropagation();
+        //e.preventDefault();
     }
     handleTouchMove(e){
         if(this.touch.active){
@@ -375,10 +375,10 @@ class AppComponent extends React.Component {
                     this.touch.active = false;
                 }
             }
-
         }
         e.stopPropagation();
         e.preventDefault();
+        return false;
     }
     render() {
         return (
