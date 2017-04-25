@@ -12,14 +12,13 @@ function getRandomFromRange(min, max){
 class AppComponent extends React.Component {
     constructor(props){
         super(props);
-        let stored_high_score = localStorage.max_score;
 
         this.last_keyevent_time;                        //记录上次键盘事件发生时间
         this.touch = {x: -1, y: -1, active: false};     //记录手指触控起点信息
         this.state = {
             score:{
                 current: 0,
-                max: Number.isInteger(stored_high_score) ? (+stored_high_score) : 0
+                max: 0
             },
             step: -2,
             game_time: 0,
@@ -75,7 +74,8 @@ class AppComponent extends React.Component {
      * 生成新游戏
      */
     newGame(){
-        localStorage.max_score = Math.max(+localStorage.max_score, this.state.score.max);
+        let max_hist = Number.isInteger(+localStorage.max_score) ? +localStorage.max_score : 0;
+        localStorage.max_score = Math.max(max_hist, this.state.score.max);
         let number_grids = [],
             step = -2,
             game_time = this.state.game_time + 1;
