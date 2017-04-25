@@ -9,6 +9,13 @@ function getRandomFromRange(min, max){
     return Math.floor(Math.random() * (max - min) + min);
 }
 
+//Add this polyfill for webview
+Number.isInteger = Number.isInteger || function(value) {
+  return typeof value === 'number' &&
+    isFinite(value) &&
+    Math.floor(value) === value;
+};
+
 class AppComponent extends React.Component {
     constructor(props){
         super(props);
