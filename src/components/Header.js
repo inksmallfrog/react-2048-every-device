@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-04-24 16:38:06
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-04-24 17:03:04
+* @Last Modified time: 2017-04-24 17:22:04
 */
 
 'use strict';
@@ -27,8 +27,8 @@ class Header extends React.Component{
 
     render(){
         return (
-            <section>
-                <h2>2048 Every device</h2>
+            <section className="header-sec">
+                <h1>2048 Every device</h1>
                 <button onClick={this.handleNewGame.bind(this)}>新游戏</button>
             </section>
         )

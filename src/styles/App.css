@@ -1,1 +1,113 @@
 /* Base Application Styles */
+:root{
+    --grid-theme{
+        display: inline-block;
+        width: calc(25% - 10px);
+        padding-bottom: calc(25% - 10px);
+        border-radius: 5px;
+    };
+}
+html{
+    background-color: #eec;
+}
+.index{
+    width: 580px;
+    margin: 0 auto;
+    margin-top: 50px;
+    margin-bottom: 50px;
+
+    & .header-sec{
+        text-align: center;
+    }
+
+    & .game-board{
+        position: relative;
+        background-color: #999;
+        border-radius: 5px;
+        padding: 10px;
+        width: 100%;
+        box-sizing: border-box;
+        line-height: 0; /*No empty text space*/
+        & .gameover{
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-radius: 5px;
+            width: 100%;
+            height: 100%;
+            z-index: 101;
+            background-color: rgba(168, 168, 168, 0.7);
+            text-align: center;
+            &.show{
+                display: unset;
+            }
+            & .text{
+                padding: 20% 0;
+                & .title{
+                    font-size: 50px;
+                }
+                & .score{
+                    font-size: 25px;
+                }
+            }
+            & button{
+                height: 30px;
+            }
+        }
+        & .grid-bg{
+            @apply --grid-theme;
+            margin: 5px;
+            background-color: #aaa;
+        }
+        & .grid:before{
+            content: '';
+            display: inline-block;
+            height: 100%;
+            vertical-align: middle;
+        }
+        & .grid{
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: calc(25% - 15px); /* 面板左右合计padding:20px，因为绝对定位，所以这里要多减(20 / 4)px*/
+            width: calc(25% - 15px);
+            border-radius: 5px;
+            background: green;
+            user-select: none;
+            text-align: center;
+            cursor: default;
+            font-size: 50px;
+            transition: left .2s, top .2s, background-color .2s;
+
+            &.power1{
+                background-color: #9c5;
+            }
+            &.power2{
+                background-color: #ba3;
+            }
+            &.power3{
+                background-color: #c47;
+            }
+            &.power4{
+                background-color: #960;
+            }
+            &.power5{
+                background-color: #73d;
+            }
+            &.power6{
+                background-color: #55a;
+            }
+            &.power7{
+                background-color: #f3b;
+            }
+            &.power8{
+                background-color: #69c;
+            }
+        }
+    }
+}
+.index:focus{
+    outline: none;
+}
+
