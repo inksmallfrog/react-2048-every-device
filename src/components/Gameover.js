@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-04-25 13:47:00
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-04-25 14:05:23
+* @Last Modified time: 2017-04-25 17:18:48
 */
 
 'use strict';
@@ -25,13 +25,13 @@ class Gameover extends React.Component{
         e.preventDefault();
     }
     render(){
-        let className = "gameover";
-        className += this.props.game_over ? " show" : "";
+        let className = 'gameover';
+        className += this.props.game_over ? ' show' : '';
         return (
             <div className={className}>
-                <div className="text">
-                    <p className="title">您挂了!</p>
-                    <p className="score">得分：{this.props.game_score.current}</p>
+                <div className='text'>
+                    <p className='title'>您挂了!</p>
+                    <p className='score'>得分：{this.props.game_score.current}</p>
                 </div>
                 <button onClick={this.handleClick.bind(this)}>新游戏</button>
             </div>

@@ -3,7 +3,6 @@ require('styles/App.css');
 
 import React from 'react';
 import Header from 'components/Header';
-import ScopePanel from 'components/ScopePanel';
 import GameBoard from 'components/GameBoard';
 
 function getRandomFromRange(min, max){
@@ -15,7 +14,8 @@ class AppComponent extends React.Component {
         super(props);
         let stored_high_score = +localStorage.max_score;
 
-        this.last_event_time;
+        this.last_keyevent_time;                        //记录上次键盘事件发生时间
+        this.touch = {x: -1, y: -1, active: false};     //记录手指触控起点信息
         this.state = {
             score:{
                 current: 0,
@@ -57,12 +57,12 @@ class AppComponent extends React.Component {
         return empty_grids_id[randomIndex];
     }
     getRandomPower(){
+        //获取当前最大的power值
         let current_max_power = 3;
         this.state.number_grids.forEach((value) => {
             current_max_power = Math.max(current_max_power, value.power);
         });
-        //计算每个数字出现的比例差
-        let dir_prob = (200 - 2 * current_max_power) / ((current_max_power - 1) * current_max_power);
+        //计算每个数字出现的比例差——这里用二次加权
         let rand = getRandomFromRange(0, (1 + current_max_power) * current_max_power * (current_max_power + 2) / 6);
         let total = 0;
         for(let i = 1; i < current_max_power; ++i){
@@ -103,27 +103,10 @@ class AppComponent extends React.Component {
             }
         })
     }
-    /*
-     * 从数字网格中提取行或列
-     * @params number_grids<Array>: 数字网格数组，该函数将修改该数组内容
-     *         isCol<boolean>: 是否提取行
-     *         value<number>: 行数或列数
-     * @return <Array> 从number_grids中提取到的数组
-     * @side-affect：修改number_grids数组
-     */
-    spliteGrids(number_grids, isCol, value){
-        let splited_grids = [];
-        splited_grids = number_grids.filter((grid)=>{
-            if(isCol) return grid.grid_id % 4 == value;
-            else return Math.floor(grid.grid_id / 4) == value;
-        })
-        splited_grids.forEach((grid)=>{
-            number_grids.splice(number_grids.indexOf(grid), 1);
-        })
-        return splited_grids;
-    }
+    //将数字网格映射到16个面板中的网格，方便进行比较计算
     rejectNumberGrids2BoardGrids(number_grids){
-        let board_grids = Array.apply(null, new Array(16)).map((value)=>{
+        //初始化16个空面板网格
+        let board_grids = Array.apply(null, new Array(16)).map(()=>{
             return new Array(0);
         });
         number_grids.forEach((grid) => {
@@ -135,12 +118,13 @@ class AppComponent extends React.Component {
         })
         return board_grids;
     }
+    //将面板网格映射回数字网格
     rejectBoardGrids2NumberGrids(board_grids){
         let number_grids = [];
         board_grids.forEach((board_grid, index)=>{
             let grid_content_num = board_grid.length;
             if(grid_content_num == 0) return;
-            else if(grid_content_num == 1){
+            else if(grid_content_num == 1){     //无网格合并状态
                 number_grids.push({
                     id: board_grid[0].id,
                     grid_id: index,
@@ -148,7 +132,7 @@ class AppComponent extends React.Component {
                     waiting_merge: false
                 });
             }
-            else if(grid_content_num == 2){
+            else if(grid_content_num == 2){     //存在网格合并状态
                 number_grids.push({
                     id: board_grid[0].id,
                     grid_id: index,
@@ -163,6 +147,7 @@ class AppComponent extends React.Component {
                 });
             }
         });
+        //为返回的网格进行排序，保证最后显示数字网格数组顺序一致
         return number_grids.sort((grid0, grid1) => {
             return  grid0.id - grid1.id;
         });
@@ -170,20 +155,19 @@ class AppComponent extends React.Component {
     /*
      * 执行动作
      * @params direction<string>: ['up', 'down', 'left', 'right']
+     *         test_mode 是否仅检查可改变数字面板数
      */
     doCommand(direction, test_mode = false){
-        let number_grids = this.state.number_grids.slice(),
-            isCol,
-            next_step,
-            col_or_row_arr,
-            isBoarder,
-            calculatePos,
-            changed_num = 0;
-        let board_grids = this.rejectNumberGrids2BoardGrids(number_grids);
-
+        let number_grids = this.state.number_grids.slice(),     //当前所有数字网格
+            next_step,                                          //每一次移动的间距
+            col_or_row_arr,                                     //记录遍历行或列的次序数组
+            isBoarder,                                          //检查是否为边缘的函数
+            calculatePos,                                       //根据参数计算面板id的函数
+            changed_num = 0,                                    //统计可改变的数字面板数
+            board_grids = this.rejectNumberGrids2BoardGrids(number_grids);
+        //为指定方向定制参数
         switch(direction.toLowerCase()){
-            case "up":
-                isCol = false;
+            case 'up':
                 next_step = -4;
                 col_or_row_arr = [1, 2, 3];
                 isBoarder = (value) => {
@@ -193,8 +177,7 @@ class AppComponent extends React.Component {
                     return row * 4 + col;
                 }
                 break;
-            case "down":
-                isCol = false;
+            case 'down':
                 next_step = 4;
                 col_or_row_arr = [2, 1, 0];
                 isBoarder = (value) => {
@@ -204,8 +187,7 @@ class AppComponent extends React.Component {
                     return row * 4 + col;
                 }
                 break;
-            case "left":
-                isCol = true;
+            case 'left':
                 next_step = -1;
                 col_or_row_arr = [1, 2, 3];
                 isBoarder = (value) => {
@@ -215,8 +197,7 @@ class AppComponent extends React.Component {
                     return col + row * 4;
                 }
                 break;
-            case "right":
-                isCol = true;
+            case 'right':
                 next_step = 1;
                 col_or_row_arr = [2, 1, 0];
                 isBoarder = (value) => {
@@ -277,6 +258,44 @@ class AppComponent extends React.Component {
             }
         }
     }
+    mergeAll(){
+        let number_grids = this.state.number_grids.slice();
+        let step = this.state.step;
+        let score = this.state.score;
+
+        let board_grids = this.rejectNumberGrids2BoardGrids(number_grids);
+        //遍历界面面板，对面板包含两个数字的网格进行合并
+        board_grids.forEach((grid)=>{
+            if(grid.length == 2){
+                score.current += Math.pow(2, grid[0].power);
+                score.max = Math.max(score.max, score.current);
+                ++(grid[0].power);
+                grid.length = 1;
+            }
+        });
+        let new_number_grids = this.rejectBoardGrids2NumberGrids(board_grids);
+        //生成新的数字
+        new_number_grids.push({
+            id: step++,
+            grid_id: this.getRandomEmptyGrid(number_grids),
+            power: this.getRandomPower(),
+            waiting_merge: false
+        });
+        this.setState({
+            number_grids: new_number_grids,
+            step: step,
+            score: score
+        });
+
+        //测试新数字生成后，是否有可行的移动方式，若没有，则游戏结束
+        let TEST_MODE = true;
+        if(!this.doCommand('up', TEST_MODE) && !this.doCommand('down', TEST_MODE)
+            && !this.doCommand('left', TEST_MODE) && !this.doCommand('right', TEST_MODE)){
+            this.setState({
+                is_gameover: true
+            })
+        }
+    }
     left(){
         this.doCommand('left');
     }
@@ -290,14 +309,15 @@ class AppComponent extends React.Component {
         this.doCommand('down');
     }
     handleKeyPress(e){
-        if(this.last_event_time){
-            if(new Date() - this.last_event_time < 200) {
+        //计算事件发生的时间差，防止事件重复发生
+        if(this.last_keyevent_time){
+            if(new Date() - this.last_keyevent_time < 200) {
                 e.stopPropagation();
                 e.preventDefault();
                 return false;
             }
         }
-        this.last_event_time = new Date();
+        this.last_keyevent_time = new Date();
         switch(e.keyCode){
             case 37:
                 this.left();
@@ -318,47 +338,57 @@ class AppComponent extends React.Component {
         e.preventDefault();
         return false;
     }
-    mergeAll(){
-        let number_grids = this.state.number_grids.slice();
-        let step = this.state.step;
-        let score = this.state.score;
-
-        let board_grids = this.rejectNumberGrids2BoardGrids(number_grids);
-        console.log(board_grids);
-        board_grids.forEach((grid)=>{
-            if(grid.length == 2){
-                score.current += Math.pow(2, grid[0].power);
-                score.max = Math.max(score.max, score.current);
-                ++(grid[0].power);
-                grid.length = 1;
-            }
-        });
-        console.log(board_grids);
-        let new_number_grids = this.rejectBoardGrids2NumberGrids(board_grids);
-        new_number_grids.push({
-            id: step++,
-            grid_id: this.getRandomEmptyGrid(number_grids),
-            power: this.getRandomPower(),
-            waiting_merge: false
-        });
-        this.setState({
-            number_grids: new_number_grids,
-            step: step,
-            score: score
-        });
-        let TEST_MODE = true;
-        if(!this.doCommand('up', TEST_MODE) && !this.doCommand('down', TEST_MODE)
-            && !this.doCommand('left', TEST_MODE) && !this.doCommand('right', TEST_MODE)){
-            this.setState({
-                is_gameover: true
-            })
+    handleTouchStart(e){
+        //排除多个手指触控情况
+        if(e.targetTouches.length == 1){
+            this.touch.x = e.targetTouches[0].pageX;
+            this.touch.y = e.targetTouches[0].pageY;
+            this.touch.active = true;
         }
+        e.stopPropagation();
+        e.preventDefault();
+    }
+    handleTouchMove(e){
+        if(this.touch.active){
+            //计算动作方向
+            let dirtaX = e.targetTouches[0].pageX - this.touch.x,
+                dirtaY = e.targetTouches[0].pageY - this.touch.y,
+                dirtaXY = Math.abs(dirtaX) - Math.abs(dirtaY);
+            if(dirtaXY > 10){
+                if(dirtaX > 20) {
+                    this.right();
+                    this.touch.active = false;
+                }
+
+                else if(dirtaX < -20) {
+                    this.left();
+                    this.touch.active = false;
+                }
+            }
+            else if(dirtaXY < -10){
+                if(dirtaY > 20) {
+                    this.down();
+                    this.touch.active = false;
+                }
+                else if(dirtaY < -20) {
+                    this.up();
+                    this.touch.active = false;
+                }
+            }
+
+        }
+        e.stopPropagation();
+        e.preventDefault();
     }
     render() {
         return (
-            <div className="index" ref="game_component" onKeyDown={this.handleKeyPress.bind(this)} tabIndex="1">
-                <Header newGame={this.newGame.bind(this)}/>
-                <ScopePanel score={this.state.score}/>
+            <div className="index" ref="game_component"
+                    onKeyDown={this.handleKeyPress.bind(this)}
+                    onTouchStart={this.handleTouchStart.bind(this)}
+                    onTouchMove={this.handleTouchMove.bind(this)}
+                    tabIndex="1"
+                    >
+                <Header newGame={this.newGame.bind(this)} score={this.state.score}/>
                 <GameBoard number_grids={this.state.number_grids}
                            game_time={this.state.game_time}
                            game_over={this.state.is_gameover}

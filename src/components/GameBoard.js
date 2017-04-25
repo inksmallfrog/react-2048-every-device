@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-04-24 16:48:33
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-04-25 14:04:26
+* @Last Modified time: 2017-04-25 16:41:11
 */
 
 'use strict';
@@ -46,8 +46,8 @@ class GameBoard extends React.Component{
                 <div className="grid-bg"></div>
                 <div className="grid-bg"></div>
                 <div className="grid-bg"></div>
-                {this.props.number_grids.map((value, index) => {
-                    return <Grid key={value.id + " " + this.props.game_time} number_grid={value}/>
+                {this.props.number_grids.map((value) => {
+                    return <Grid key={value.id + ' ' + this.props.game_time} number_grid={value}/>
                 })}
             </div>
         )
@@ -56,7 +56,7 @@ class GameBoard extends React.Component{
 GameBoard.defaultProps = {
     number_grids: [],
     game_time: 0,
-    game_over: false,
+    game_over: false
 }
 GameBoard.propTypes = {
     number_grids: PropType.arrayOf(PropType.shape({

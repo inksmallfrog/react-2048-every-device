@@ -1,6 +1,7 @@
 /* Base Application Styles */
+@custom-media --small-viewport (max-width: 720px);
 :root{
-    --grid-theme{
+    --grid-theme: {
         display: inline-block;
         width: calc(25% - 10px);
         padding-bottom: calc(25% - 10px);
@@ -16,8 +17,26 @@ html{
     margin-top: 50px;
     margin-bottom: 50px;
 
+    @media (--small-viewport){
+        width: 100%;
+        margin: 0;
+    }
+
     & .header-sec{
         text-align: center;
+        & div{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            & button{
+                height: 30px;
+                background-color: #c9e;
+                border: none;
+            }
+            @media (--small-viewport){
+                margin: 0 15px;
+            }
+        }
     }
 
     & .game-board{
@@ -79,6 +98,9 @@ html{
             cursor: default;
             font-size: 50px;
             transition: left .2s, top .2s, background-color .2s;
+            @media (--small-viewport){
+                font-size: 30px;
+            }
 
             &.power1{
                 background-color: #9c5;

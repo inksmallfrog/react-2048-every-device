@@ -2,7 +2,7 @@
 * @Author: inksmallfrog
 * @Date:   2017-04-24 16:53:50
 * @Last Modified by:   inksmallfrog
-* @Last Modified time: 2017-04-25 11:32:02
+* @Last Modified time: 2017-04-25 17:18:21
 */
 
 'use strict';
@@ -33,8 +33,7 @@ class Grid extends React.Component{
               grid_margin = 5,
               number_grid = this.props.number_grid,
               col = number_grid.grid_id % 4,
-              row = Math.floor(number_grid.grid_id / 4),
-              power = number_grid.power;
+              row = Math.floor(number_grid.grid_id / 4);
 
         let left = board_padding + (grid_width + grid_margin * 2) * col + grid_margin;
         let top = board_padding + (grid_width + grid_margin * 2) * row + grid_margin;
@@ -45,8 +44,8 @@ class Grid extends React.Component{
     }
     render(){
         let style = this.calculateStyle();
-        let className = "grid";
-        className += " power" + this.props.number_grid.power;
+        let className = 'grid';
+        className += ' power' + this.props.number_grid.power;
         return (
             <div className={className} ref="grid" style={style}>{Math.pow(2, this.props.number_grid.power)}</div>
         )
