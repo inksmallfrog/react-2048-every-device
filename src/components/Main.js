@@ -19,7 +19,7 @@ class AppComponent extends React.Component {
         this.state = {
             score:{
                 current: 0,
-                max: isNaN(stored_high_score) ? 0 : (+stored_high_score)
+                max: Number.isInteger(stored_high_score) ? (+stored_high_score) : 0
             },
             step: -2,
             game_time: 0,
